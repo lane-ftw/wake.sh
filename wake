@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Define names and MAC addresses in a combined array (name and MAC address together, separated by a '|')
+devices=(
+  "DEVICE1|AA:BB:CC:DD:EE:FF"
+  "DEVICE2|AA:BB:CC:DD:EE:FF"
+  "DEVICE3|AA:BB:CC:DD:EE:FF"
+  "DEVICEX|AA:BB:CC:DD:EE:FF"
+  "DEVICEX|AA:BB:CC:DD:EE:FF"
+  "DEVICEX|AA:BB:CC:DD:EE:FF"
+)
+
+# Define color for the separator line
+COLOR="\033[1;34m"
+RESET="\033[0m"  # Reset color to default
+
+# Print the list of devices, one per line: name first, then MAC
+echo "Devices:"
+echo -e "${COLOR}=================${RESET}"
+count=1
+for device in "${devices[@]}"; do
+  name=$(echo $device | cut -d'|' -f1)
+  mac=$(echo $device | cut -d'|' -f2-)
+  echo "$count) $name"
+  echo "$mac"
+  ((count++))
+done
+
+# Ask user for their choice
+echo -e "${COLOR}=================${RESET}"
+echo -n "Enter the number of the device: "
+read choice
+
+# Check if the input is valid
+if [[ "$choice" -ge 1 && "$choice" -le ${#devices[@]} ]]; then
+
+  # Get the selected device and extract the MAC address
+  selected_device="${devices[$((choice - 1))]}"
+  mac=$(echo $selected_device | cut -d'|' -f2-)
+
+  # Send to wakeonlan
+  wakeonlan "$mac"
+else
+  echo "Invalid selection. Please try again."
+fi
